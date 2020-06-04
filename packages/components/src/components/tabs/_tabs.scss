@@ -25,16 +25,16 @@
     height: auto;
     width: 100%;
     position: relative;
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       background: none;
       min-height: rem(40px);
-    }
+    // }
   }
 
   .#{$prefix}--tabs--container {
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       min-height: rem(48px);
-    }
+    // }
   }
 
   .#{$prefix}--tabs-trigger {
@@ -105,6 +105,10 @@
   .#{$prefix}--tabs-left,
   .#{$prefix}--tabs-right {
     padding: 1rem 0;
+
+    &.hidden {
+      display: none;
+    }
   }
 
   .#{$prefix}--tabs__nav {
@@ -114,35 +118,35 @@
     position: absolute;
     list-style: none;
     display: flex;
-    flex-direction: column;
-    z-index: z('dropdown');
-    background: $ui-01;
-    transition: max-height $duration--fast-01 motion(standard, productive);
-    max-height: 600px;
-    width: 100%;
+    // flex-direction: column;
+    // z-index: z('dropdown');
+    // background: $ui-01;
+    // transition: max-height $duration--fast-01 motion(standard, productive);
+    // max-height: 600px;
+    // width: 100%;
 
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       flex-direction: row;
       background: none;
       box-shadow: none;
       z-index: auto;
       transition: inherit;
       width: auto;
-    }
+    // }
   }
 
   .#{$prefix}--tabs__nav--hidden {
-    transition: max-height $duration--fast-01 motion(standard, productive);
+    // transition: max-height $duration--fast-01 motion(standard, productive);
     overflow: hidden;
-    max-height: 0;
+    // max-height: 0;
 
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       display: flex;
       transition: inherit;
-      overflow-x: scroll;
+      // overflow-x: scroll;
       max-width: 100%;
       max-height: none;
-    }
+    // }
   }
 
   //-----------------------------
@@ -155,21 +159,21 @@
     padding: 0;
     cursor: pointer;
     width: 100%;
-    height: rem(40px);
+    // height: rem(40px);
     transition: background-color $duration--fast-01 motion(standard, productive);
 
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       background: transparent;
       height: auto;
 
       + .#{$prefix}--tabs__nav-item {
         margin-left: rem(1px);
       }
-    }
+    // }
   }
 
   .#{$prefix}--tabs--container .#{$prefix}--tabs__nav-item {
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       background-color: $ui-03;
 
       & + .#{$prefix}--tabs__nav-item {
@@ -182,6 +186,10 @@
       &.#{$prefix}--tabs__nav-item--selected + .#{$prefix}--tabs__nav-item {
         box-shadow: none;
       }
+    // }
+
+    &.hidden {
+      display: none;
     }
   }
 
@@ -195,8 +203,12 @@
   // Item Hover
   //-----------------------------
   .#{$prefix}--tabs__nav-item:hover:not(.#{$prefix}--tabs__nav-item--selected) {
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       background: transparent;
+    // }
+    
+    &.hidden {
+      display: none;
     }
   }
 
@@ -204,21 +216,21 @@
     background-color: $hover-ui;
     box-shadow: 0 -1px 0 $hover-ui;
 
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       background-color: transparent;
 
       &,
       & + .#{$prefix}--tabs__nav-item {
         box-shadow: none;
       }
-    }
+    // }
   }
 
   .#{$prefix}--tabs--container
     .#{$prefix}--tabs__nav-item:hover:not(.#{$prefix}--tabs__nav-item--disabled) {
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       background-color: $hover-selected-ui;
-    }
+    // }
   }
 
   //---------------------------------------------
@@ -256,10 +268,10 @@
   //-----------------------------
   .#{$prefix}--tabs__nav-item--selected:not(.#{$prefix}--tabs__nav-item--disabled) {
     border: none;
-    display: none;
+    // display: none;
     transition: color $duration--fast-01 motion(standard, productive);
 
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       display: flex;
       .#{$prefix}--tabs__nav-link,
       .#{$prefix}--tabs__nav-link:focus,
@@ -268,7 +280,7 @@
         color: $text-01;
         border-bottom: 2px solid $interactive-04;
       }
-    }
+    // }
   }
 
   .#{$prefix}--tabs--container
@@ -356,18 +368,18 @@
   .#{$prefix}--tabs__nav-item:hover:not(.#{$prefix}--tabs__nav-item--selected):not(.#{$prefix}--tabs__nav-item--disabled)
     .#{$prefix}--tabs__nav-link {
     color: $text-01;
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       color: $text-01;
       border-bottom: $tab-underline-color-hover;
-    }
+    // }
   }
 
   .#{$prefix}--tabs--container
     .#{$prefix}--tabs__nav-item:hover:not(.#{$prefix}--tabs__nav-item--selected):not(.#{$prefix}--tabs__nav-item--disabled)
     .#{$prefix}--tabs__nav-link {
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       border-bottom: none;
-    }
+    // }
   }
 
   //-----------------------------
@@ -392,9 +404,9 @@
   .#{$prefix}--tabs--container
     .#{$prefix}--tabs__nav-item--disabled
     .#{$prefix}--tabs__nav-link {
-    @include carbon--breakpoint(md) {
+    // @include carbon--breakpoint(md) {
       border-bottom: none;
-    }
+    // }
   }
 
   //-----------------------------

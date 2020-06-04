@@ -108,11 +108,10 @@ export default class Tabs extends React.Component {
   };
 
   state = {
-    dropdownHidden: true,
     arrowHidden: true,
     numTabsShown: 3, // TBD
-    scrollPageNumber: 0,
-    maxNumPages: 2, // TBD
+    activePageNumber: 0,
+    maxNumPages: 1,
   };
 
   static getDerivedStateFromProps({ selected }, state) {
@@ -123,6 +122,39 @@ export default class Tabs extends React.Component {
           selected,
           prevSelected: selected,
         };
+  }
+
+  componentDidMount() {
+    const numOfTabs = this.getTabs().length;
+    if (numOfTabs > 0) {
+      const maxNumPages = Math.ceil(numOfTabs / this.state.numTabsShown);
+      if (maxNumPages > 1) {
+        let activePageNumber = 0;
+        if (this.state.selected) {
+          activePageNumber = Math.floor(this.state.selected / this.state.numTabsShown);
+        }
+        this.setState({
+          maxNumPages,
+          arrowHidden: false,
+          activePageNumber,
+        });
+      }
+    }
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (!this.state.arrowHidden) {
+      if (this.state.selected !== prevState.selected) {
+        const { selected, numTabsShown } = this.state;
+        let activePageNumber = 0;
+        if (selected) {
+          activePageNumber = Math.floor(selected / numTabsShown);
+        }
+        this.setState({
+          activePageNumber,
+        });
+      }
+    }
   }
 
   getTabs() {
@@ -224,17 +256,17 @@ export default class Tabs extends React.Component {
   };
 
   handleLeftClick = () => {
-    if (this.state.scrollPageNumber > 0) {
+    if (this.state.activePageNumber > 0) {
       this.setState({
-        scrollPageNumber: this.state.scrollPageNumber - 1,
+        activePageNumber: this.state.activePageNumber - 1,
       });
     }
   };
 
   handleRightClick = () => {
-    if (this.state.scrollPageNumber < this.state.maxNumPages) {
+    if (this.state.activePageNumber < this.state.maxNumPages) {
       this.setState({
-        scrollPageNumber: this.state.scrollPageNumber + 1,
+        activePageNumber: this.state.activePageNumber + 1,
       });
     }
   };
@@ -268,9 +300,17 @@ export default class Tabs extends React.Component {
      */
     const tabsWithProps = this.getTabs().map((tab, index) => {
       const tabPanelIndex = index === this.state.selected ? 0 : -1;
-      const tabIndex = !this.state.dropdownHidden ? 0 : tabPanelIndex;
+      const tabIndex = tabPanelIndex;
+      let tabClass = '';
+      if (!this.state.arrowHidden) {
+        const pageNumber = Math.floor(index / this.state.numTabsShown);
+        if (this.state.activePageNumber !== pageNumber) {
+          tabClass = ' hidden';
+        }
+      }
       const newTab = React.cloneElement(tab, {
         index,
+        className: `${tab.props.className}${tabClass}`,
         selected: index === this.state.selected,
         handleTabClick: this.handleTabClick(onSelectionChange),
         tabIndex,
@@ -317,6 +357,8 @@ export default class Tabs extends React.Component {
     const selectedLabel = selectedTab ? selectedTab.props.label : '';
     const leftClick = this.handleLeftClick;
     const rightClick = this.handleRightClick;
+    const leftArrowClass = (this.state.arrowHidden || this.state.activePageNumber === 0) ? ' hidden': '';
+    const rightArrowClass = (this.state.arrowHidden || this.state.activePageNumber === this.state.maxNumPages - 1) ? ' hidden': '';
 
     return (
       <>
@@ -326,7 +368,7 @@ export default class Tabs extends React.Component {
               <div
                 role=""
                 aria-label={ariaLabel}
-                className={`${prefix}--tabs-left`}
+                className={`${prefix}--tabs-left${leftArrowClass}`}
                 onClick={leftClick}
                 onKeyPress={leftClick}>
                 <ChevronLeft16 aria-hidden="true">
@@ -339,7 +381,7 @@ export default class Tabs extends React.Component {
               <div
                 role=""
                 aria-label={ariaLabel}
-                className={`${prefix}--tabs-right`}
+                className={`${prefix}--tabs-right${rightArrowClass}`}
                 onClick={rightClick}
                 onKeyPress={rightClick}>
                 <ChevronRight16 aria-hidden="true">

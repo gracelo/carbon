@@ -169,18 +169,19 @@ storiesOf('Tabs', module)
     'Container',
     () => (
       <Tabs type="container" {...props.tabs()}>
-        <Tab id="tab-1" {...props.tab()} label="Tab label 1">
+        <Tab id="tab-1" {...props.tab()} label="Tab label 1" className="tab-1">
           <div className="some-content">
             <p>Content for first tab goes here.</p>
           </div>
         </Tab>
-        <Tab id="tab-2" {...props.tab()} label="Tab label 2">
+        <Tab id="tab-2" {...props.tab()} label="Tab label 2" className="tab-2">
           <div className="some-content">
             <p>Content for second tab goes here.</p>
           </div>
         </Tab>
         <Tab
           id="tab-3"
+          className="tab-3"
           {...props.tab()}
           label="Tab label 3"
           renderContent={TabContentRenderedOnlyWhenSelected}>
@@ -196,11 +197,22 @@ storiesOf('Tabs', module)
         </Tab>
         <Tab
           id="tab-4"
+          className="tab-4"
           {...props.tab()}
           label={<CustomLabel text="Custom Label" />}>
           <div className="some-content">
             <p>Content for fourth tab goes here.</p>
             <TextInput light id="sample-input" labelText="Text Input Label" />
+          </div>
+        </Tab>
+        <Tab id="tab-5" {...props.tab()} label="Tab label 5" className="tab-5">
+          <div className="some-content">
+            <p>Content for fifth tab goes here.</p>
+          </div>
+        </Tab>
+        <Tab id="tab-6" {...props.tab()} label="Tab label 6" className="tab-6">
+          <div className="some-content">
+            <p>Content for sixth tab goes here.</p>
           </div>
         </Tab>
       </Tabs>
