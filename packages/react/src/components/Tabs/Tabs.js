@@ -110,8 +110,8 @@ export default class Tabs extends React.Component {
   state = {
     arrowHidden: true,
     numTabsShown: 3, // TBD
-    activePageNumber: 0,
-    maxNumPages: 1,
+    minTabShown: 0,
+    maxTabShown: 0,
   };
 
   static getDerivedStateFromProps({ selected }, state) {
@@ -126,32 +126,48 @@ export default class Tabs extends React.Component {
 
   componentDidMount() {
     const numOfTabs = this.getTabs().length;
-    if (numOfTabs > 0) {
-      const maxNumPages = Math.ceil(numOfTabs / this.state.numTabsShown);
-      if (maxNumPages > 1) {
-        let activePageNumber = 0;
-        if (this.state.selected) {
-          activePageNumber = Math.floor(this.state.selected / this.state.numTabsShown);
-        }
-        this.setState({
-          maxNumPages,
-          arrowHidden: false,
-          activePageNumber,
-        });
+    if (numOfTabs > this.state.numTabsShown) { // need arrow
+      const { selected, numTabsShown } = this.state;
+      let minTabShown = 0;
+      let maxTabShown = 0;
+      if (selected === 0) { // home
+        minTabShown = 0;
+        maxTabShown = numTabsShown - 1;
+      } else if ((selected + numTabsShown) > numOfTabs - 1) { // end
+        minTabShown = numOfTabs - numTabsShown;
+        maxTabShown = numOfTabs - 1; // last item
+      } else { // assume show the middle range
+        minTabShown = selected - 1;
+        maxTabShown = selected + numTabsShown - 2;
       }
+      this.setState({
+        arrowHidden: false,
+        minTabShown,
+        maxTabShown,
+      });
     }
   }
 
   componentDidUpdate(_, prevState) {
     if (!this.state.arrowHidden) {
       if (this.state.selected !== prevState.selected) {
+        const numOfTabs = this.getTabs().length;
         const { selected, numTabsShown } = this.state;
-        let activePageNumber = 0;
-        if (selected) {
-          activePageNumber = Math.floor(selected / numTabsShown);
+        let minTabShown = 0;
+        let maxTabShown = 0;
+        if (selected === 0) { // home
+          minTabShown = 0;
+          maxTabShown = numTabsShown - 1;
+        } else if ((selected + numTabsShown) > numOfTabs - 1) { // end
+          minTabShown = numOfTabs - numTabsShown;
+          maxTabShown = numOfTabs - 1; // last item
+        } else { // assume show the middle range
+          minTabShown = selected - 1;
+          maxTabShown = selected + numTabsShown - 2;
         }
         this.setState({
-          activePageNumber,
+          minTabShown,
+          maxTabShown,
         });
       }
     }
@@ -256,19 +272,39 @@ export default class Tabs extends React.Component {
   };
 
   handleLeftClick = () => {
-    if (this.state.activePageNumber > 0) {
-      this.setState({
-        activePageNumber: this.state.activePageNumber - 1,
-      });
+    const { selected, minTabShown, numTabsShown } = this.state;
+    const numOfTabs = this.getTabs().length;
+    let newMin = 0;
+    let newMax = 0;
+    if ((minTabShown - numTabsShown) < 0) { // home
+      newMin = 0;
+      newMax = numTabsShown - 1;
+    } else {
+      newMin = minTabShown - numTabsShown + 1;
+      newMax = minTabShown;
     }
+    this.setState({
+      minTabShown: newMin,
+      maxTabShown: newMax,
+    });
   };
 
   handleRightClick = () => {
-    if (this.state.activePageNumber < this.state.maxNumPages) {
-      this.setState({
-        activePageNumber: this.state.activePageNumber + 1,
-      });
+    const { selected, minTabShown, maxTabShown, numTabsShown } = this.state;
+    const numOfTabs = this.getTabs().length;
+    let newMin = 0;
+    let newMax = 0;
+    if ((maxTabShown + numTabsShown) > numOfTabs - 1) { // end
+      newMin = numOfTabs - numTabsShown;
+      newMax = numOfTabs - 1; // last item
+    } else {
+      newMin = maxTabShown;
+      newMax = maxTabShown + numTabsShown - 1;
     }
+    this.setState({
+      minTabShown: newMin,
+      maxTabShown: newMax,
+    });
   };
 
   render() {
@@ -301,16 +337,15 @@ export default class Tabs extends React.Component {
     const tabsWithProps = this.getTabs().map((tab, index) => {
       const tabPanelIndex = index === this.state.selected ? 0 : -1;
       const tabIndex = tabPanelIndex;
-      let tabClass = '';
+      let tabClass = tab.props.className || '';
       if (!this.state.arrowHidden) {
-        const pageNumber = Math.floor(index / this.state.numTabsShown);
-        if (this.state.activePageNumber !== pageNumber) {
-          tabClass = ' hidden';
+        if (index < this.state.minTabShown || index > this.state.maxTabShown) {
+          tabClass += ' hidden';
         }
       }
       const newTab = React.cloneElement(tab, {
         index,
-        className: `${tab.props.className}${tabClass}`,
+        className: tabClass,
         selected: index === this.state.selected,
         handleTabClick: this.handleTabClick(onSelectionChange),
         tabIndex,
@@ -357,8 +392,9 @@ export default class Tabs extends React.Component {
     const selectedLabel = selectedTab ? selectedTab.props.label : '';
     const leftClick = this.handleLeftClick;
     const rightClick = this.handleRightClick;
-    const leftArrowClass = (this.state.arrowHidden || this.state.activePageNumber === 0) ? ' hidden': '';
-    const rightArrowClass = (this.state.arrowHidden || this.state.activePageNumber === this.state.maxNumPages - 1) ? ' hidden': '';
+    const numOfTabs = tabsWithProps.length;
+    const leftArrowClass = (this.state.arrowHidden || this.state.minTabShown === 0) ? ' hidden': '';
+    const rightArrowClass = (this.state.arrowHidden || this.state.maxTabShown === numOfTabs - 1) ? ' hidden': '';
 
     return (
       <>
