@@ -8,7 +8,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
-import { ChevronDown16 } from '@carbon/icons-react';
+import { ChevronDown16, ChevronLeft16, ChevronRight16 } from '@carbon/icons-react';
 import { settings } from 'carbon-components';
 import { keys, match, matches } from '../../internal/keyboard';
 
@@ -97,7 +97,8 @@ export default class Tabs extends React.Component {
   };
 
   static defaultProps = {
-    iconDescription: 'show menu options',
+    leftDescription: 'previous tabs',
+    rightDescription: 'next tabs',
     role: 'navigation',
     type: 'default',
     triggerHref: '#',
@@ -108,6 +109,10 @@ export default class Tabs extends React.Component {
 
   state = {
     dropdownHidden: true,
+    arrowHidden: true,
+    numTabsShown: 3, // TBD
+    scrollPageNumber: 0,
+    maxNumPages: 2, // TBD
   };
 
   static getDerivedStateFromProps({ selected }, state) {
@@ -218,10 +223,27 @@ export default class Tabs extends React.Component {
     }
   };
 
+  handleLeftClick = () => {
+    if (this.state.scrollPageNumber > 0) {
+      this.setState({
+        scrollPageNumber: this.state.scrollPageNumber - 1,
+      });
+    }
+  };
+
+  handleRightClick = () => {
+    if (this.state.scrollPageNumber < this.state.maxNumPages) {
+      this.setState({
+        scrollPageNumber: this.state.scrollPageNumber + 1,
+      });
+    }
+  };
+
   render() {
     const {
       ariaLabel,
-      iconDescription,
+      leftDescription,
+      rightDescription,
       className,
       triggerHref,
       role,
@@ -293,30 +315,38 @@ export default class Tabs extends React.Component {
 
     const selectedTab = this.getTabAt(this.state.selected, true);
     const selectedLabel = selectedTab ? selectedTab.props.label : '';
+    const leftClick = this.handleLeftClick;
+    const rightClick = this.handleRightClick;
 
     return (
       <>
         <div {...other} className={classes.tabs} role={role}>
-          <div
-            role="listbox"
-            aria-label={ariaLabel}
-            tabIndex={0}
-            className={`${prefix}--tabs-trigger`}
-            onClick={this.handleDropdownClick}
-            onKeyPress={this.handleDropdownClick}>
-            <a
-              tabIndex={-1}
-              className={`${prefix}--tabs-trigger-text`}
-              href={triggerHref}
-              onClick={this.handleDropdownClick}>
-              {selectedLabel}
-            </a>
-            <ChevronDown16 aria-hidden="true">
-              {iconDescription && <title>{iconDescription}</title>}
-            </ChevronDown16>
-          </div>
           <ul role="tablist" className={classes.tablist}>
+            <li className="bx--tabs__nav-item" tabIndex="-1">
+              <div
+                role=""
+                aria-label={ariaLabel}
+                className={`${prefix}--tabs-left`}
+                onClick={leftClick}
+                onKeyPress={leftClick}>
+                <ChevronLeft16 aria-hidden="true">
+                  {leftDescription && <title>{leftDescription}</title>}
+                </ChevronLeft16>
+              </div>
+            </li>
             {tabsWithProps}
+            <li className="bx--tabs__nav-item" tabIndex="-1">
+              <div
+                role=""
+                aria-label={ariaLabel}
+                className={`${prefix}--tabs-right`}
+                onClick={rightClick}
+                onKeyPress={rightClick}>
+                <ChevronRight16 aria-hidden="true">
+                  {rightDescription && <title>{rightDescription}</title>}
+                </ChevronRight16>
+              </div>
+            </li>
           </ul>
         </div>
         {tabContentWithProps}

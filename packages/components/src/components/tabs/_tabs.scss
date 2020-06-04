@@ -102,6 +102,11 @@
     outline: none;
   }
 
+  .#{$prefix}--tabs-left,
+  .#{$prefix}--tabs-right {
+    padding: 1rem 0;
+  }
+
   .#{$prefix}--tabs__nav {
     @include box-shadow;
     margin: 0;
