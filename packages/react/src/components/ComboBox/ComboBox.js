@@ -17,7 +17,7 @@ import setupGetInstanceId from '../../tools/setupGetInstanceId';
 
 const { prefix } = settings;
 
-const defaultItemToString = item => {
+const defaultItemToString = (item) => {
   if (typeof item === 'string') {
     return item;
   }
@@ -219,7 +219,7 @@ export default class ComboBox extends React.Component {
   }
 
   filterItems = (items, itemToString, inputValue) =>
-    items.filter(item =>
+    items.filter((item) =>
       this.props.shouldFilterItem({
         item,
         itemToString,
@@ -227,13 +227,13 @@ export default class ComboBox extends React.Component {
       })
     );
 
-  handleOnChange = selectedItem => {
+  handleOnChange = (selectedItem) => {
     if (this.props.onChange) {
       this.props.onChange({ selectedItem });
     }
   };
 
-  handleOnInputValueChange = inputValue => {
+  handleOnInputValueChange = (inputValue) => {
     const { onInputChange } = this.props;
 
     this.setState(
@@ -258,11 +258,24 @@ export default class ComboBox extends React.Component {
   handleOnStateChange = (newState, { setHighlightedIndex }) => {
     if (Object.prototype.hasOwnProperty.call(newState, 'inputValue')) {
       const { inputValue } = newState;
-      setHighlightedIndex(findHighlightedIndex(this.props, inputValue));
+      const items = this.filterItems(
+        this.props.items,
+        this.props.itemToString,
+        inputValue
+      );
+      setHighlightedIndex(
+        findHighlightedIndex(
+          {
+            ...this.props,
+            items,
+          },
+          inputValue
+        )
+      );
     }
   };
 
-  onToggleClick = isOpen => event => {
+  onToggleClick = (isOpen) => (event) => {
     if (event.target === this.textInput.current && isOpen) {
       event.preventDownshiftDefault = true;
       event.persist();
@@ -324,6 +337,7 @@ export default class ComboBox extends React.Component {
         inputValue={this.state.inputValue || ''}
         itemToString={itemToString}
         defaultSelectedItem={initialSelectedItem}
+        inputId={id}
         selectedItem={selectedItem}>
         {({
           getToggleButtonProps,
@@ -354,7 +368,6 @@ export default class ComboBox extends React.Component {
               light={light}
               size={size}>
               <ListBox.Field
-                id={id}
                 {...getToggleButtonProps({
                   disabled,
                   onClick: this.onToggleClick(isOpen),
@@ -370,7 +383,7 @@ export default class ComboBox extends React.Component {
                   {...getInputProps({
                     disabled,
                     placeholder,
-                    onKeyDown: event => {
+                    onKeyDown: (event) => {
                       if (match(event, keys.Space)) {
                         event.stopPropagation();
                       }
@@ -400,9 +413,7 @@ export default class ComboBox extends React.Component {
                 />
               </ListBox.Field>
               {isOpen && (
-                <ListBox.Menu
-                  id={id}
-                  {...getMenuProps({ 'aria-label': ariaLabel })}>
+                <ListBox.Menu {...getMenuProps({ 'aria-label': ariaLabel })}>
                   {this.filterItems(items, itemToString, inputValue).map(
                     (item, index) => {
                       const itemProps = getItemProps({ item, index });

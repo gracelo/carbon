@@ -2033,6 +2033,9 @@ Map {
       "disabled": Object {
         "type": "bool",
       },
+      "downshiftProps": Object {
+        "type": "object",
+      },
       "helperText": Object {
         "args": Array [
           Array [
@@ -3849,7 +3852,6 @@ Map {
       "itemText": [Function],
       "itemsPerPageText": "Items per page:",
       "page": 1,
-      "pageInputDisabled": false,
       "pageNumberText": "Page Number",
       "pageRangeText": [Function],
       "pageText": [Function],
@@ -3899,9 +3901,7 @@ Map {
       "page": Object {
         "type": "number",
       },
-      "pageInputDisabled": Object {
-        "type": "bool",
-      },
+      "pageInputDisabled": [Function],
       "pageNumberText": Object {
         "type": "string",
       },
@@ -5825,6 +5825,8 @@ Map {
       "compact": false,
       "headers": Array [],
       "rowCount": 5,
+      "showHeader": true,
+      "showToolbar": true,
       "zebra": false,
     },
     "propTypes": Object {
@@ -5859,6 +5861,12 @@ Map {
       },
       "rowCount": Object {
         "type": "number",
+      },
+      "showHeader": Object {
+        "type": "bool",
+      },
+      "showToolbar": Object {
+        "type": "bool",
       },
       "zebra": Object {
         "type": "bool",
