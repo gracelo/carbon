@@ -8,7 +8,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
-import { ChevronDown16, ChevronLeft16, ChevronRight16 } from '@carbon/icons-react';
+import { ChevronLeft16, ChevronRight16 } from '@carbon/icons-react';
 import { settings } from 'carbon-components';
 import { keys, match, matches } from '../../internal/keyboard';
 
@@ -72,7 +72,7 @@ export default class Tabs extends React.Component {
     /**
      * Provide a string that represents the `href` for the triggered <Tab>
      */
-    triggerHref: PropTypes.string.isRequired,
+    // triggerHref: PropTypes.string.isRequired,
 
     /**
      * Optionally provide an index for the currently selected <Tab>
@@ -94,6 +94,11 @@ export default class Tabs extends React.Component {
      * Choose whether or not to automatically change selection on focus
      */
     selectionMode: PropTypes.oneOf(['automatic', 'manual']),
+
+    /**
+     * Optionally provide a responsive function to return teh number of tabs given the tabs width
+     */
+    getNumOfTabs: PropTypes.func,
   };
 
   static defaultProps = {
@@ -101,7 +106,7 @@ export default class Tabs extends React.Component {
     rightDescription: 'next tabs',
     role: 'navigation',
     type: 'default',
-    triggerHref: '#',
+    // triggerHref: '#',
     selected: 0,
     ariaLabel: 'listbox',
     selectionMode: 'automatic',
@@ -124,10 +129,16 @@ export default class Tabs extends React.Component {
         };
   }
 
+  constructor() {
+    super();
+    this.ref = React.createRef();
+  }
+
   componentDidMount() {
     const numOfTabs = this.getTabs().length;
     if (numOfTabs > this.state.numTabsShown) { // need arrow
-      const { selected, numTabsShown } = this.state;
+      const { selected } = this.state;
+      const numTabsShown = this.getNumTabsShown() || this.state.numTabsShown;
       let minTabShown = 0;
       let maxTabShown = 0;
       if (selected === 0) { // home
@@ -142,15 +153,27 @@ export default class Tabs extends React.Component {
       }
       this.setState({
         arrowHidden: false,
+        numTabsShown,
         minTabShown,
         maxTabShown,
       });
+
+      window.addEventListener('resize', () => { this.refreshNumOfTabs(); });
     }
   }
 
   componentDidUpdate(_, prevState) {
-    if (!this.state.arrowHidden) {
-      if (this.state.selected !== prevState.selected) {
+    let arrowHidden = this.state.arrowHidden;
+    if (this.state.arrowHidden && this.state.numTabsShown !== prevState.numTabsShown) {
+      // need to check if need to add arrow
+      const numOfTabs = this.getTabs().length;
+      if (numOfTabs > this.state.numTabsShown) {
+        arrowHidden = false;
+      }
+      else return; // keep arrow hidden;
+    }
+    if (!arrowHidden) {
+      if (this.state.selected !== prevState.selected || this.state.numTabsShown !== prevState.numTabsShown) {
         const numOfTabs = this.getTabs().length;
         const { selected, numTabsShown } = this.state;
         let minTabShown = 0;
@@ -166,11 +189,44 @@ export default class Tabs extends React.Component {
           maxTabShown = selected + numTabsShown - 2;
         }
         this.setState({
+          arrowHidden,
           minTabShown,
           maxTabShown,
         });
       }
     }
+  }
+
+  getNumTabsShown() {
+    const { getNumOfTabs } = this.props;
+    let numTabsShown = this.state.numTabsShown;
+    const width = this.ref.current && this.ref.current.getBoundingClientRect()
+      && this.ref.current.getBoundingClientRect().width;
+    if (getNumOfTabs) {
+      return getNumOfTabs(width);
+    }
+    console.log(' width is ' + width);
+    if (width < 420) {
+      numTabsShown = 2;
+    } else if (width < 740) {
+      numTabsShown = 3;
+    } else if (width < 920) {
+      numTabsShown = 4;
+    } else if (width < 1060) {
+      numTabsShown = 5;
+    } else if (width < 1260) {
+      numTabsShown = 6;
+    } else {
+      numTabsShown = 7;
+    }
+    return numTabsShown;
+  }
+
+  refreshNumOfTabs() {
+    const numTabsShown = this.getNumTabsShown();
+    this.setState({
+      numTabsShown,
+    });
   }
 
   getTabs() {
@@ -272,8 +328,7 @@ export default class Tabs extends React.Component {
   };
 
   handleLeftClick = () => {
-    const { selected, minTabShown, numTabsShown } = this.state;
-    const numOfTabs = this.getTabs().length;
+    const { minTabShown, numTabsShown } = this.state;
     let newMin = 0;
     let newMax = 0;
     if ((minTabShown - numTabsShown) < 0) { // home
@@ -290,7 +345,7 @@ export default class Tabs extends React.Component {
   };
 
   handleRightClick = () => {
-    const { selected, minTabShown, maxTabShown, numTabsShown } = this.state;
+    const { maxTabShown, numTabsShown } = this.state;
     const numOfTabs = this.getTabs().length;
     let newMin = 0;
     let newMax = 0;
@@ -313,7 +368,7 @@ export default class Tabs extends React.Component {
       leftDescription,
       rightDescription,
       className,
-      triggerHref,
+      // triggerHref,
       role,
       type,
       onSelectionChange,
@@ -388,8 +443,8 @@ export default class Tabs extends React.Component {
       }),
     };
 
-    const selectedTab = this.getTabAt(this.state.selected, true);
-    const selectedLabel = selectedTab ? selectedTab.props.label : '';
+    // const selectedTab = this.getTabAt(this.state.selected, true);
+    // const selectedLabel = selectedTab ? selectedTab.props.label : '';
     const leftClick = this.handleLeftClick;
     const rightClick = this.handleRightClick;
     const numOfTabs = tabsWithProps.length;
@@ -398,11 +453,11 @@ export default class Tabs extends React.Component {
 
     return (
       <>
-        <div {...other} className={classes.tabs} role={role}>
+        <div {...other} className={classes.tabs} role={role} ref={this.ref}>
           <ul role="tablist" className={classes.tablist}>
             <li className="bx--tabs__nav-item" tabIndex="-1">
               <div
-                role=""
+                role='tab'
                 aria-label={ariaLabel}
                 className={`${prefix}--tabs-left${leftArrowClass}`}
                 onClick={leftClick}
@@ -415,7 +470,7 @@ export default class Tabs extends React.Component {
             {tabsWithProps}
             <li className="bx--tabs__nav-item" tabIndex="-1">
               <div
-                role=""
+                role='tab'
                 aria-label={ariaLabel}
                 className={`${prefix}--tabs-right${rightArrowClass}`}
                 onClick={rightClick}
